@@ -5,8 +5,8 @@ import requests
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QStackedWidget, QScrollArea, QGraphicsOpacityEffect
 )
-from PyQt6.QtCore import Qt, QPoint, QPropertyAnimation
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt, QPoint, QPropertyAnimation, QUrl
+from PyQt6.QtGui import QIcon, QDesktopServices
 from lib.ui.ui_setting_loader import UISettingsLoader
 from lib.utils.github_version import GitHubVersionWidget
 from lib.utils.version import CAVersion
@@ -155,7 +155,11 @@ class MainWindowCA(QWidget):
         self.thanks_btn.setIcon(QIcon(os.path.abspath("resources/ui_icons/handmade.png")))
         self.thanks_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.thanks_btn.setStyleSheet(self.topbar_style_background)
-        self.thanks_btn.clicked.connect(lambda: webbrowser.open("https://www.paypal.com/donate/?hosted_button_id=5HECGEZY3EXPY"))
+        self.thanks_btn.clicked.connect(
+            lambda: QDesktopServices.openUrl(
+                QUrl("https://www.paypal.com/donate/?hosted_button_id=5HECGEZY3EXPY")
+            )
+        )
         top_bar_layout.addWidget(self.thanks_btn)
 
         # ---- Close Button ----
