@@ -1,0 +1,10 @@
+requests
+packaging
+
+#tts
+edge-tts
+soundfile
+
+# UI
+pyqt6 ; sys_platform == "darwin"
+pyside6 ; sys_platform == "win32"

@@ -1,0 +1,28 @@
+{
+    "window": {
+        "width": 480,
+        "height": 240,
+        "opacity": 0.9,
+        "always_on_top": true,
+        "x": 1017,
+        "y": 390
+    },
+    "ui": {
+        "top_bar_height_cm": 0.0,
+        "background_color": [
+            60,
+            55,
+            45
+        ],
+        "separator_color": [
+            255,
+            217,
+            102
+        ],
+        "font_color": [
+            245,
+            245,
+            245
+        ]
+    }
+}
