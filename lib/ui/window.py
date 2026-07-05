@@ -11,6 +11,8 @@ from PyQt6.QtGui import QIcon, QDesktopServices
 from lib.ui.ui_setting_loader import UISettingsLoader
 from lib.utils.github_version import GitHubVersionWidget
 from lib.utils.version import CAVersion
+from lib.utils.wallpaper_download import WallpaperDownload
+
 
 class MainWindowCA(QWidget):
     topbar_style_background = "font-size: 14px; color: #FFD966; background: transparent; border: none;"
@@ -53,6 +55,12 @@ class MainWindowCA(QWidget):
         self.mood_input = QLineEdit()
         self.frequency_box = QComboBox()
         self.adaptive_checkbox = QCheckBox()
+
+        # Wallpaper download:
+        self.wall = WallpaperDownload(
+            pexels_key="YOUR_PEXELS_KEY",
+            unsplash_key="CupGcHluHJVFJb1FaEz5zRSTN3y6KG_KRGXyDM_gSb8"
+        )
 
         try:
             resp = requests.get("https://ca.panthila.ch/special_thanks.php", timeout=5)
@@ -519,3 +527,9 @@ class MainWindowCA(QWidget):
 
     def check_now_wallpaper(self):
         print("Checking wallpaper now...")
+        self.wall.run_async(
+            source="unsplash",
+            directory="./wallpapers",
+            query="porsche gt3",
+            resolution=""
+        )
