@@ -526,7 +526,12 @@ class MainWindowCA(QWidget):
         self.show_stack_page("main", w)
 
     def check_now_wallpaper(self):
-        print("Checking wallpaper now...")
+        # todo:
+        # camiare il valore del testo, usando AI per i tag.
+        # mettere in settings la directory e la risoluzione
+        # fare un checkbox su quale piattaforme usare che saranno usate randomiche
+        # poi nel download prende la prima foto un po random, non sempre la stessa in caso di stessa ricerca
+        # setta come wallppaper
         self.wall.run_async(
             source="unsplash",
             directory="./wallpapers",
