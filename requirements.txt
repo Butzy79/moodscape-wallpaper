@@ -1,9 +1,8 @@
 requests
 packaging
 
-#tts
-edge-tts
-soundfile
+#AI Sentences
+llama-cpp-python
 
 # UI
 pyqt6 ; sys_platform == "darwin"

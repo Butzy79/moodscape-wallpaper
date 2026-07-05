@@ -24,7 +24,7 @@ if exist MoodSpace_Wallpaper.spec (
 
 echo Running PyInstaller...
 py gen_version.py
-pyinstaller --onefile --noconsole --name MoodSpace_Wallpaper main.py --hidden-import requests --hidden-import packaging --icon=resources/butzy.ico --add-data "resources/butzy.ico;resources"
+pyinstaller --onefile --noconsole --name MoodSpace_Wallpaper main.py --hidden-import llama-cpp-python --add-data "models/qwen2.5.gguf;models"  --hidden-import requests --hidden-import packaging --icon=resources/butzy.ico --add-data "resources/butzy.ico;resources"
 
 echo.
 echo Copying settings.json and config folder to dist...
