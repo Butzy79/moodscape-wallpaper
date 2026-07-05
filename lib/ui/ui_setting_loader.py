@@ -25,6 +25,11 @@ class UISettingsLoader:
             "background_color": [60, 55, 45],
             "separator_color": [255, 217, 102],
             "font_color": [245, 245, 245]
+        },
+        "app": {
+            "mood": "",
+            "frequency": "30",
+            "adaptive": "True"
         }
     }
 
@@ -37,6 +42,7 @@ class UISettingsLoader:
     window_y: int
     window_opacity: float
     always_on_top: bool
+    app_data: dict
 
     top_bar_height_px: int
 
@@ -75,6 +81,7 @@ class UISettingsLoader:
     def _apply(self, data):
         window = data["window"]
         ui = data["ui"]
+        app = data.get("app", {})
 
         self.window_width = int(window.get("width", 480))
         self.window_height = int(window.get("height", 640))
@@ -90,6 +97,7 @@ class UISettingsLoader:
         self.bg_color = tuple(ui.get("background_color", [60, 55, 45]))
         self.separator_color = tuple(ui.get("separator_color", [255, 217, 102]))
         self.font_color = tuple(ui.get("font_color", [245, 245, 245]))
+        self.app_data = app
 
     # -------------------------
     # Utils
@@ -99,7 +107,7 @@ class UISettingsLoader:
         dpi = screen.logicalDotsPerInch() if screen else 96
         return int((cm / 2.54) * dpi)
 
-    def save(self):
+    def save(self, app_data=None):
         data = {
             "window": {
                 "width": self.window_width,
@@ -115,7 +123,8 @@ class UISettingsLoader:
                 "background_color": list(self.bg_color),
                 "separator_color": list(self.separator_color),
                 "font_color": list(self.font_color),
-            }
+            },
+            "app": app_data or {}
         }
 
         # Ensure directory exists

@@ -1,11 +1,11 @@
 {
     "window": {
         "width": 480,
-        "height": 240,
+        "height": 360,
         "opacity": 0.9,
         "always_on_top": true,
-        "x": 1144,
-        "y": 294
+        "x": 1326,
+        "y": 88
     },
     "ui": {
         "top_bar_height_cm": 0.0,
@@ -24,5 +24,10 @@
             245,
             245
         ]
+    },
+    "app": {
+        "mood": "Porsche Racing",
+        "frequency": "2 hours",
+        "adaptive": true
     }
 }

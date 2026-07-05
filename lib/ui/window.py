@@ -3,14 +3,14 @@ import webbrowser
 
 import requests
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QStackedWidget, QScrollArea, QGraphicsOpacityEffect
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QStackedWidget, QScrollArea, QGraphicsOpacityEffect,
+    QLineEdit, QComboBox, QCheckBox
 )
 from PyQt6.QtCore import Qt, QPoint, QPropertyAnimation, QUrl
 from PyQt6.QtGui import QIcon, QDesktopServices
 from lib.ui.ui_setting_loader import UISettingsLoader
 from lib.utils.github_version import GitHubVersionWidget
 from lib.utils.version import CAVersion
-
 
 class MainWindowCA(QWidget):
     topbar_style_background = "font-size: 14px; color: #FFD966; background: transparent; border: none;"
@@ -49,6 +49,11 @@ class MainWindowCA(QWidget):
         super().__init__()
         self.i_am_updated = GitHubVersionWidget.check_update_api()
         self.settings = settings
+
+        self.mood_input = QLineEdit()
+        self.frequency_box = QComboBox()
+        self.adaptive_checkbox = QCheckBox()
+
         try:
             resp = requests.get("https://ca.panthila.ch/special_thanks.php", timeout=5)
             self.remote_thanks_content = resp.text
@@ -99,7 +104,7 @@ class MainWindowCA(QWidget):
         top_bar_layout.addWidget(self.pin_btn)
 
         # ---- Main Frame ---
-        self.main_frame: QPushButton = QPushButton("CHECKLIST")
+        self.main_frame: QPushButton = QPushButton("Moodspace Wallpaper")
         self.main_frame.setFixedHeight(32)
         self.main_frame.setCursor(Qt.CursorShape.PointingHandCursor)
         self.main_frame.setCheckable(True)
@@ -194,6 +199,26 @@ class MainWindowCA(QWidget):
         self.stack = QStackedWidget()
         main_layout.addWidget(self.stack)
         self.show_main_frame()
+        self.__apply_settings_to_ui()
+
+    def __apply_settings_to_ui(self):
+        app = getattr(self.settings, "app_data", {})
+        if hasattr(self, "mood_input"):
+            self.mood_input.setText(app.get("mood", ""))
+        if hasattr(self, "frequency_box"):
+            freq = app.get("frequency", "1 hour")
+            index = self.frequency_box.findText(freq)
+            if index >= 0:
+                self.frequency_box.setCurrentIndex(index)
+        if hasattr(self, "adaptive_checkbox"):
+            self.adaptive_checkbox.setChecked(app.get("adaptive", False))
+
+    def __on_settings_changed(self):
+        self.settings.save(app_data={
+            "mood": self.mood_input.text(),
+            "frequency": self.frequency_box.currentText(),
+            "adaptive": self.adaptive_checkbox.isChecked()
+        })
 
     # ---- Close Attempt ----
     def attempt_close(self):
@@ -244,7 +269,11 @@ class MainWindowCA(QWidget):
         self.settings.window_x = geom.x()
         self.settings.window_y = geom.y()
         self.settings.always_on_top = self.always_on_top
-        self.settings.save()
+        self.settings.save(app_data={
+            "mood": self.mood_input.text(),
+            "frequency": self.frequency_box.currentText(),
+            "adaptive": self.adaptive_checkbox.isChecked()
+        })
         self.close()
 
     # ---- Pin toggle ----
@@ -311,7 +340,7 @@ class MainWindowCA(QWidget):
         )
         label.setText(
             f'<div style="font-size:22px; font-weight:bold; margin:0; padding:0;">'
-            f'Checklist-Assistant v{version}'
+            f'Moodspace Wallpaer v{version}'
             f'</div>'
             f'{error_version}'
             f'<div style="margin-top:10px; font-size:15px; font-weight:bold;">'
@@ -369,17 +398,124 @@ class MainWindowCA(QWidget):
         self.show_stack_page("settings", w)
 
     def show_main_frame(self):
-        text = "bla bla CHECKLIST"
+        """Main dashboard: mood-based wallpaper controls."""
+
         w = QWidget()
         w.setObjectName("main")
-        l = QVBoxLayout(w)
-        label = QLabel(text)
-        label.setWordWrap(True)
-        label.setAlignment(
-            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
-        )
-        l.setContentsMargins(10, 5, 10, 0)
-        label.setStyleSheet(self.main_frame_style_base)
-        l.addWidget(label)
-        l.addStretch()
+        layout = QVBoxLayout(w)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(12)
+
+        # -----------------------------
+        # Title / description
+        # -----------------------------
+        title = QLabel("Moodspace Wallpaper")
+        title.setStyleSheet(self.main_frame_style_base)
+        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(title)
+
+        subtitle = QLabel("Tell us your mood and we will find the right wallpapers for you.")
+        subtitle.setStyleSheet("color: #CCCCCC; font-size: 13px;")
+        subtitle.setWordWrap(True)
+        layout.addWidget(subtitle)
+
+        # -----------------------------
+        # Mood input
+        # -----------------------------
+        mood_label = QLabel("What would you like?")
+        mood_label.setStyleSheet(self.main_frame_style_base)
+        layout.addWidget(mood_label)
+
+        self.mood_input = QLineEdit()
+        self.mood_input.textChanged.connect(self.__on_settings_changed)
+        self.mood_input.setPlaceholderText("e.g. calm, cyberpunk city, cozy night, nature vibes...")
+        self.mood_input.setStyleSheet("""
+            QLineEdit {
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid #FFD966;
+                background-color: rgba(0, 0, 0, 80);
+                color: #FFFFFF;
+                font-size: 14px;
+            }
+        """)
+        layout.addWidget(self.mood_input)
+
+        # -----------------------------
+        # Frequency selector
+        # -----------------------------
+        freq_label = QLabel("Wallpaper change frequency")
+        freq_label.setStyleSheet(self.main_frame_style_base)
+        layout.addWidget(freq_label)
+
+        self.frequency_box = QComboBox()
+        self.frequency_box.currentIndexChanged.connect(self.__on_settings_changed)
+        self.frequency_box.addItems([
+            "30 minutes",
+            "1 hour",
+            "2 hours",
+            "3 hours"
+        ])
+        self.frequency_box.setStyleSheet("""
+            QComboBox {
+                padding: 6px;
+                border-radius: 4px;
+                border: 1px solid #FFD966;
+                background-color: rgba(0, 0, 0, 80);
+                color: #FFFFFF;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #2A2A2A;
+                color: #FFFFFF;
+                selection-background-color: #FFD966;
+            }
+        """)
+        layout.addWidget(self.frequency_box)
+
+        # -----------------------------
+        # Day/Night adaptive toggle
+        # -----------------------------
+        self.adaptive_checkbox = QCheckBox("Enable adaptive wallpapers (day / night)")
+        self.adaptive_checkbox.stateChanged.connect(self.__on_settings_changed)
+        self.adaptive_checkbox.setStyleSheet("""
+            QCheckBox {
+                color: #FFFFFF;
+                font-size: 14px;
+                spacing: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                border: 1px solid #FFD966;
+                background: transparent;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #FFD966;
+                border: 1px solid #FFD966;
+            }
+        """)
+        layout.addWidget(self.adaptive_checkbox)
+
+        # -----------------------------
+        # Check Now Button
+        # -----------------------------
+        layout.addSpacing(20)
+        self.check_wallpaper_btn = QPushButton("Check now wallpaper")
+        self.check_wallpaper_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.check_wallpaper_btn.setStyleSheet(self.button_style_full)
+        self.check_wallpaper_btn.clicked.connect(self.check_now_wallpaper)
+
+        layout.addWidget(self.check_wallpaper_btn)
+
+        # -----------------------------
+        # Stretch filler
+        # -----------------------------
+        layout.addStretch()
+
+        # Show in stacked widget
         self.show_stack_page("main", w)
+
+    def check_now_wallpaper(self):
+        print("Checking wallpaper now...")
